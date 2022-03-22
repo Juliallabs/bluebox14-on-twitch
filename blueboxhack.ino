@@ -47,7 +47,65 @@ WiFiClient wiFiClient;
 IRCClient client(IRC_SERVER, IRC_PORT, wiFiClient);
 
 
+void RemoveAccents (char Text[], int TextLength) {
+  int i = 0;
+  do {
+    char c = Text[i];
+    if ((int)c == 195) {
+      char c2 = Text[i + 1];
+      switch ((int)c2) {
+        case 160 ... 166:
+          Text[i] = 'a';
+          break;
+        case 167:
+          Text[i] = 'c';
+          break;
+        case 168 ... 171:
+          Text[i] = 'e';
+          break;
+        case 172 ... 175:
+          Text[i] = 'i';
+          break;
+        case 177:
+          Text[i] = 'n';
+          break;
+        case 178 ... 182:
+          Text[i] = 'o';
+          break;
+        case 185 ... 188:
+          Text[i] = 'u';
+          break;
+        case 189 ... 191:
+          Text[i] = 'y';
+          break;
+        case 128 ... 134:
+          Text[i] = 'A';
+          break;
+        case 135:
+          Text[i] = 'C';
+          break;
+        case 136 ... 139:
+          Text[i] = 'E';
+          break;
+        case 140 ... 143:
+          Text[i] = 'I';
+          break;
+        case 146 ... 150:
+          Text[i] = 'O';
+          break;
+        case 153 ... 156:
+          Text[i] = 'U';
+          break;
+        default:
+          break;
+      }
+      for (int j = i + 1; j < TextLength; j++) Text[j] = Text[j + 1];
+      TextLength --;
+    }
+    i++;
+  } while (i < TextLength);
 
+}
 
 
 void display_msg(){
@@ -142,7 +200,7 @@ void callback(IRCMessage ircMessage) {
     String msg(ircMessage.text);
     msg.toCharArray(mensagem, tamanhoArray);
     mensagem[0]=' ';
-
+    RemoveAccents(mensagem, tamanhoArray);
 
   }
   if (ircMessage.text.indexOf("OI") > -1 && ircMessage.nick == "JULIALABS")
