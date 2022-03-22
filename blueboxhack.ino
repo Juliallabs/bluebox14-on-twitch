@@ -12,6 +12,7 @@ Created with code from noycebru www.twitch.tv/noycebru
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <IRCClient.h>
 #include "senhas.h"
+#include "data.h"
 
 //define your default values here, if there are different values in config.json, they are overwritten.
 #define secret_ssid "my ssid" 
@@ -33,11 +34,14 @@ const String twitchChannelName = "julialabs";
 #define pino_CS D3 // Pino de conexão entre o display de LED e o Wemos
 #define qte_displays 4 // Define o número de displays da matriz
 #define scroll_delay 100 // Tempo (em milissegundos) para atualização dos LEDs 
+
 const int tamanhoArray = 30;
+const long intervalo = 20000; //Intervalo de tempo entre checagem de mensagens (em milisegundos)
+
 char mensagem[tamanhoArray]; // Variável que armazena os caracteres da mensagem recebida
 char msg_display[tamanhoArray];
+
 unsigned long previousMillis = 0; // Variavel para armazenar o valor (tempo) da ultima atualização da mensagem
-const long intervalo = 20000; //Intervalo de tempo entre checagem de mensagens (em milisegundos)
 
 FC16 meuDisplay = FC16(pino_CS, qte_displays); // Criação e configuração do objeto display
 
@@ -47,10 +51,23 @@ WiFiClient wiFiClient;
 IRCClient client(IRC_SERVER, IRC_PORT, wiFiClient);
 
 
+/*
+  RemoveWords:
+  - Def: Função responsável pela remoção das mensagens contidas na lista wordsToRemove no arquivo data.h
+      exec: Substitui o conteúdo da mensagem indesejada pelo nome do canal. 
+*/
+
+void RemoveMessage (char message[], *wordsToRemove[]) {
+  for (int i = 0; i <= sizeof(wordsToRemove); i++) {
+    if (message && message == wordsToRemove[i]) {
+
+      message = twitchChannelName
+    }
+  }
+}
 
 
-
-void display_msg(){
+void display_msg () {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= intervalo)
   {
@@ -62,9 +79,8 @@ void display_msg(){
 }
 
 
- 
 // put your setup code here, to run once:
-void setup() {
+void setup () {
 
   delay(2000);
   Serial.begin(115200);
@@ -98,12 +114,10 @@ void setup() {
   meuDisplay.setIntensity(2); // Define o brilho do display
   meuDisplay.clearDisplay(); // Apaga qualquer informação que esteja no display
   meuDisplay.setText("JULIALABS"); // Texto inicial exibido no display
-
-
 }
 
  
-void loop() {
+void loop () {
  
   // Try to connect to chat. If it loses connection try again
   if (!client.connected()) {
@@ -126,7 +140,7 @@ void loop() {
 }
 
  
-void sendTwitchMessage(String message) {
+void sendTwitchMessage (String message) {
   client.sendMessage(ircChannel, message);
 }
  
@@ -142,16 +156,13 @@ void callback(IRCMessage ircMessage) {
     String msg(ircMessage.text);
     msg.toCharArray(mensagem, tamanhoArray);
     mensagem[0]=' ';
-
+    RemoveMessage(mensagem, wordsToRemove);
 
   }
-  if (ircMessage.text.indexOf("OI") > -1 && ircMessage.nick == "JULIALABS")
-      {
-     
-      Serial.println("funcionaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-   
-    }
+
+  if (ircMessage.text.indexOf("OI") > -1 && ircMessage.nick == "JULIALABS") {
+    Serial.println("funcionaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  }
  
-    return;
-  
+  return;
 } 
