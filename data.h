@@ -1,0 +1,1 @@
+char *wordsToRemove[] = { "caramba", "chato", "mensagens idesejadas" } 
